@@ -1,6 +1,5 @@
 function SVDIdentifier(svdUID){
     if(typeof svdUID != "string"){
-        console.log("SVDIdentifier: svdUID is not a string ")
         svdUID = svdUID.getUID();
     }
     let parsed = svdUID.split(":");
@@ -10,7 +9,6 @@ function SVDIdentifier(svdUID){
     }
 
     if(parsed[0] != "svd" && parsed.length != 3){
-        console.log(parsed, svdUID);
         throw new Error("Invalid SVD Unique identifier " + svdUID + " !!! Expected format: svd:<type>:<id>");
     }
 

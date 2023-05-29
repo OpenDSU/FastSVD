@@ -24,7 +24,6 @@ function FSStrategy(path){
         diff.forEach(entry => {
             parallelTaskRunner.addTask(getTask(entry));
         });
-        callback(undefined, true);
     }
 
 

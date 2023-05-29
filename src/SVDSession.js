@@ -21,7 +21,7 @@ function SVDSession(svdFactory){
             if(!svdInstance) {
                 svdFactory.restore(svdId, self, function (err, svdInstance) {
                     if(err){
-                        callback(err);
+                        return callback(err);
                     }
                     currentSVDs[svdId.getUID()] = svdInstance;
                     callback(undefined, svdInstance);
@@ -100,7 +100,7 @@ function SVDSession(svdFactory){
         let counter = 0;
         for(let uid in auditLog){
             counter++
-            console.debug("Committing: ", uid, " with ", auditLog[uid].length, " changes");
+            //console.debug("Committing: ", uid, " with ", auditLog[uid].length, " changes");
             self.lookup(uid, function(err, svdInstance){
                 diff.push({
                     uid: uid,
@@ -129,7 +129,7 @@ function SVDSession(svdFactory){
         if(!transactionHandler){
             throw new Error("Modifiers must be called only during the transactions lifetimes");
         }
-        console.log("Audit: ", svdInstance.getUID(), fn, args);
+        //console.log("Audit: ", svdInstance.getUID(), fn, args);
         addAuditEntry(svdInstance.getUID(), fn, args);
     }
 }

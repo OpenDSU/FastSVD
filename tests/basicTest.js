@@ -29,7 +29,6 @@ let session = new fastSVD.createSession(factory);
 let svdUid  = "svd:test:test" + Math.floor(Math.random() * 100000);
 session.beginTransaction([], function(err, transactionHandler){
     let test1 = session.create(svdUid, 1001);
-
     assert.equal(test1.read(), 1001);
     test1.changeValue(1002);
     assert.equal(test1.read(), 1002);
@@ -38,11 +37,17 @@ session.beginTransaction([], function(err, transactionHandler){
     session.commitTransaction(function(err){
         let testSession = new fastSVD.createSession(factory);
         testSession.lookup(svdUid, function(err, test2){
-            console.log(err && err.stack);
+            if(err){
+                console.log("Error: ", err);
+            }
             assert.equal(err == undefined, true);
             assert.equal(test2.read(), 1003);
-            console.log("Test ended successfully");
+            console.log("Cleaning ", "./SVDS/" + svdUid);
+
+            fs.rm("./SVDS/" + svdUid, { recursive: true, force: true }, function(err,res){
+                console.log("Test ended successfully");
+            });
         });
     });
-   // fs.unlinksync("./svds")
+
 });

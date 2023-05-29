@@ -1,7 +1,7 @@
 function ParallelTasks(callback){
     let counter = 0;
     let self = this;
-    let res = [];
+    let result = [];
     let alreadyReturned = false;
 
     this.addTask = function(func){
@@ -10,14 +10,15 @@ function ParallelTasks(callback){
             if(err){
                 return self.onEnd(err);
             }
-            if(res != undefined){
-                res.push(res);
-            } else {
-                console.log("Parallel task returned undefined", res, counter);
-            }
+             result.push(res);
+
             counter--;
             if(counter == 0){
-                self.onEnd(undefined,res);
+                self.onEnd(undefined,result);
+            }
+
+            if(counter < 0){
+                throw new Error("Assert failure! Counter is negative!");
             }
         });
     }
@@ -28,9 +29,8 @@ function ParallelTasks(callback){
             callback(fail, res);
         }
     }
-
-
 }
+
 module.exports.createNewParallelTaskRunner = function(callback){
     return new ParallelTasks(callback);
 };
