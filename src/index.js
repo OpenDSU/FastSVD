@@ -1,7 +1,7 @@
-let SVDBase = require("./SVDBase.js");
+let SVDBase = require("./core/SVDBase.js");
 let FSStrategy = require("./persistenceStrategies/FSStrategy.js");
-let SVDFactory = require("./SVDFactory.js");
-let SVDSession = require("./SVDSession.js");
+let SVDFactory = require("./core/SVDFactory.js");
+let SVDSession = require("./core/SVDSession.js");
 const constants = require("./moduleConstants.js");
 
 
@@ -13,12 +13,12 @@ module.exports = {
     createFSPersistence: function(path){
         return new FSStrategy(path);
     },
-    createFactory: function(strategy){
+    createFactory: function(strategy, signatureProvider){
         if(!strategy)
         {
             strategy = new FSStrategy(path);
         }
-        return new SVDFactory(strategy);
+        return new SVDFactory(strategy, signatureProvider);
     }
 
 

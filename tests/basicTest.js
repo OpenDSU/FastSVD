@@ -8,7 +8,10 @@ test SVDSession style of working
  */
 
 let persistence = fastSVD.createFSPersistence("./SVDS/");
-let factory = new fastSVD.createFactory(persistence);
+let signatureProvider = require("../src/signatureProvider/MockProvider.js").create();
+
+
+let factory = new fastSVD.createFactory(persistence, signatureProvider);
 
 factory.registerType("test", {
         ctor: function(value){

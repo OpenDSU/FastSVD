@@ -1,11 +1,11 @@
 /*
     A SVDIdentifiers is in format svd:type:id
  */
-const FSStrategy = require("./persistenceStrategies/FSStrategy");
+const FSStrategy = require("../persistenceStrategies/FSStrategy");
 const SVDBase = require("./SVDBase");
 const SVDIdentifier = require("./SVDIdentifier");
 
-function SVDFactory(persistenceStrategy){
+function SVDFactory(persistenceStrategy, signatureProvider){
     let typesRegistry = {};
 
     if(!persistenceStrategy){
@@ -27,6 +27,10 @@ function SVDFactory(persistenceStrategy){
     }
 
     this.store = function(diff, transactionHandler, callback){
+        diff.forEach(entry => {
+            entry.signature = signatureProvider.sign(entry);
+        })
+        //console.log("Storing diff: ", diff);
         persistenceStrategy.storeAndUnlock(diff, transactionHandler, callback);
     }
 

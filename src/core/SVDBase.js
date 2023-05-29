@@ -1,4 +1,4 @@
-const constants = require("./moduleConstants");
+const constants = require("../moduleConstants");
 /*
     Description is a JSON in format { [functionName:function1], actions : [action1, action2, ...] }
     The SVDBase instances will look like normal JS objects with methods from description and actions mixed together.
