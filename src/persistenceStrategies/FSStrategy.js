@@ -3,28 +3,30 @@ function FSStrategy(path){
     let lockedSVds = {};
 
     this.lock = function(uid, transactionHandler){
+        let stringUID = uid.getUID();
         if(lockedSVds[uid] != undefined){
-            throw new Error("SVD already locked by transaction  " + lockedSVds[uid] + " and " + transactionHandler + " tried to lock it again)");
+            throw new Error("SVD already locked by transaction  " + lockedSVds[stringUID] + " and " + transactionHandler + " tried to lock it again)");
         }
-        lockedSVds[uid] = transactionHandler;
-    }
-
-    this.loadState = function(uid, callback){
-        fs.readFile(path + "/" + uid +"/state", 'utf8', callback);
-    }
-    function appendHistory(uid, newState, newDiff, callback){
-        fs.write(path + "/" + uid + "/", history, function(){
-            fs.writeFile(path + "/" + uid +"/audit/", newState);
-        });
+        lockedSVds[stringUID] = transactionHandler;
     }
 
     this.storeAndUnlock = function(diff, transactionHandler, callback){
+        let parallelTaskRunner = require("../util/parallelTask").createNewParallelTaskRunner(callback);
+        let self = this;
+
+        let getTask = function(entry){
+            return (callback) => {
+                //console.log("storeAndUnlock: ", entry.uid, " with ", entry.changes.length, " changes: ", entry.changes);
+                saveSVD(entry.uid, entry.state, entry.changes, callback);
+                lockedSVds[entry.uid] = undefined;
+            }
+        }
         diff.forEach(entry => {
-            // save (entry.uid, entry.state, entry.changes);
-            lockedSVds[entry.uid] = undefined;
+            parallelTaskRunner.addTask(getTask(entry));
         });
         callback(undefined, true);
     }
+
 
     this.abortLocks = function(diff, transactionHandler){
         diff.forEach(entry => {
@@ -33,6 +35,29 @@ function FSStrategy(path){
             } else {
                 lockedSVds[entry.uid] = undefined;
             }
+        });
+    }
+
+    this.loadState = function(uid, callback){
+        let stringUID = uid.getUID();
+        fs.readFile(path + "/" + stringUID +"/state", 'utf8', function(err, res) {
+            if(err){
+                return callback(err);
+            }
+            try{
+                let obj = JSON.parse(res);
+                callback(undefined, obj);
+            }catch(err){
+                callback(err);
+            }
+        });
+    }
+    function saveSVD(stringUID, svdState, changes, callback){
+        let dirPath = path + "/" + stringUID + "/";
+        fs.mkdir(dirPath, function(){
+            fs.writeFile(dirPath+ "/state", JSON.stringify(svdState), function(){
+                fs.appendFile(path + "/" + stringUID +"/history", JSON.stringify(changes) + "\n", callback );
+            });
         });
     }
 }

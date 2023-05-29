@@ -46,6 +46,7 @@ function SVDBase( svdIdentifier, state, description, session, callCtor){
     {
         if(this.ctor){
             try{
+                session.audit(self, "ctor", ...state);
                 this.ctor(...state);
             }catch (err){
                 let newError = new Error("Ctor initialisation for" + svdIdentifier.getTypeName() +" failed to run properly. See .previous for details");

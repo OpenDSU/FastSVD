@@ -22,8 +22,7 @@ function SVDFactory(persistenceStrategy){
                 callback(err);
                 return;
             }
-
-            callback(undefined, new SVDBase(svdId, state, typesRegistry[svdId.getType()], session, false));
+            callback(undefined, new SVDBase(svdId, state, typesRegistry[svdId.getTypeName()], session, false));
         });
     }
 
