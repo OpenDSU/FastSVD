@@ -23,7 +23,7 @@ factory.registerType("test", {
         actions: {
             changeValue: function(newValue){
                 this.value = newValue;
-                this.timeOfChange  = this.getSession().now();
+                this.timeOfChange  = this.now();
                  this.getSession().lookup(this.getUID(), function(err,  selfRefDummy){
                     selfRefDummy.selfRef++;
                 });
@@ -35,8 +35,9 @@ let session = new fastSVD.createSession(factory);
 
 let svdUid  = "svd:test:test" + Math.floor(Math.random() * 100000);
 session.beginTransaction([], function(err, transactionHandler){
-    assert.equal(err ,  undefined, "Error in transaction");
-    assert.equal(transactionHandler != 0 , undefined, "Transaction handler is 0");
+    assert.equal(err ,  undefined, "Error in transaction ");
+    console.log("Transaction handler: ", transactionHandler);
+    assert.notEqual(transactionHandler  , "", "Transaction handler is empty");
 
     let test1 = session.create(svdUid, 1001);
     assert.equal(test1.read(), 1001);
@@ -46,7 +47,7 @@ session.beginTransaction([], function(err, transactionHandler){
     assert.equal(test1.read(), 1003);
     session.commitTransaction(function(err){
         assert.equal(err ,  undefined, "Error in transaction");
-        assert.equal(transactionHandler != 0 , undefined, "Transaction handler is 0");
+        assert.notEqual(transactionHandler  , "", "Transaction handler is empty");
         let testSession = new fastSVD.createSession(factory);
         testSession.lookup(svdUid, function(err, test2){
             if(err){

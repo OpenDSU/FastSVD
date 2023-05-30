@@ -3,7 +3,7 @@
  */
 const FSStrategy = require("../persistenceStrategies/FSStrategy");
 const SVDBase = require("./SVDBase");
-const SVDIdentifier = require("./SVDIdentifier");
+
 
 function SVDFactory(persistenceStrategy, signatureProvider){
     let typesRegistry = {};
@@ -35,8 +35,7 @@ function SVDFactory(persistenceStrategy, signatureProvider){
     }
 
     this.create = function(svdId,  session, ...args){
-         let instance = new SVDBase(svdId, args, typesRegistry[svdId.getTypeName()], session, true);
-         return instance;
+         return new SVDBase(svdId, args, typesRegistry[svdId.getTypeName()], session, true);
     }
 }
 

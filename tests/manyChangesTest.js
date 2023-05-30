@@ -23,7 +23,7 @@ factory.registerType("test", {
         actions: {
             changeValue: function(newValue){
                 this.value = newValue;
-                this.timeOfChange  = this.getSession().now();
+                this.timeOfChange  = this.now();
                  this.getSession().lookup(this.getUID(), function(err,  selfRefDummy){
                     selfRefDummy.selfRef++;
                 });

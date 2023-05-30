@@ -13,10 +13,6 @@ function SVDSession(svdFactory){
         return svdInstance;
     }
 
-    this.now = function(){
-        return Date.now();
-    }
-
     this.lookup = function(svdId, callback){
         if(typeof callback != 'function'){
             throw new Error("Invalid callback function");
@@ -56,7 +52,7 @@ function SVDSession(svdFactory){
     }
 
     let auditLog = {};
-    function addAuditEntry(uid, fn, args){
+    function addAuditEntry(uid, nowValue, fn, args){
         if(typeof uid == 'object'){
             uid = uid.getUID();
         }
@@ -65,7 +61,8 @@ function SVDSession(svdFactory){
         }
         let entry = {
             fn: fn,
-            args: args
+            args: args,
+            now: nowValue
         }
         auditLog[uid].push(entry);
     }
@@ -156,7 +153,7 @@ function SVDSession(svdFactory){
             throw new Error("Modifiers must be called only during the transactions lifetimes");
         }
         //console.log("Audit: ", svdInstance.getUID(), fn, args);
-        addAuditEntry(svdInstance.getUID(), fn, args);
+        addAuditEntry(svdInstance.getUID(), svdInstance.__timeOfLastChange, fn, args);
     }
 }
 

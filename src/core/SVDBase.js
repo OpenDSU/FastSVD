@@ -22,10 +22,15 @@ function SVDBase( svdIdentifier, state, description, session, callCtor){
         return f.bind(self);
     }
 
+    this.now = function(){
+        return self.__timeOfLastChange;
+    }
+
     function generateModifier(fn, f){
         let boundFunc = f.bind(self);
         return function(...args){
-            session.audit(self, fn, ...args)
+            self.__timeOfLastChange = Date.now();
+            session.audit(self, fn, ...args);
             return boundFunc(...args);
         }.bind(self)
     }
@@ -46,8 +51,6 @@ function SVDBase( svdIdentifier, state, description, session, callCtor){
         }
         this[fn] = generateModifier(fn, actions[fn])
     }
-
-
 
     if(callCtor)
     {
