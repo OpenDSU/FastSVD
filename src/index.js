@@ -1,4 +1,3 @@
-let SVDBase = require("./core/SVDBase.js");
 let FSStrategy = require("./persistenceStrategies/FSStrategy.js");
 let SVDFactory = require("./core/SVDFactory.js");
 let SVDSession = require("./core/SVDSession.js");

@@ -1,6 +1,5 @@
 
 let fastSVD = require("../src/index.js")
-let crypto = require("crypto");
 let fs = require("fs");
 let assert = require("assert");
 /*
@@ -40,6 +39,7 @@ let svdUid2  = "svd:test:test" + Math.floor(Math.random() * 100000);
 function createSvd(svdUid, value, callback){
     let session = new fastSVD.createSession(factory);
     session.beginTransaction([], function(err, transactionHandler){
+        assert.equal(err ,  undefined, "Error in transaction");
         let svd = session.create(svdUid, value);
         session.commitTransaction(function(err){
             callback(err, svd);
@@ -49,6 +49,8 @@ function createSvd(svdUid, value, callback){
 function changeSVD(svdUid, value, callback){
     let session = new fastSVD.createSession(factory);
     session.beginTransaction([], function(err, transactionHandler){
+        assert.equal(err ,  undefined, "Error in transaction");
+        assert.equal(transactionHandler == 0 ,  false, );
         let svd = session.lookup(svdUid, function(err, svd){
             svd.changeValue(value);
             session.commitTransaction(function(err){
