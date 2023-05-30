@@ -17,7 +17,7 @@ function FSStrategy(path){
         let getTask = function(entry){
             return (callback) => {
                 //console.log("storeAndUnlock: ", entry.uid, " with ", entry.changes.length, " changes: ", entry.changes);
-                saveSVD(entry.uid, entry.state, entry.changes, callback);
+                saveSVD(entry.uid, entry.state, entry.changes, entry.signature, callback);
                 lockedSVds[entry.uid] = undefined;
             }
         }
@@ -51,11 +51,17 @@ function FSStrategy(path){
             }
         });
     }
-    function saveSVD(stringUID, svdState, changes, callback){
+    function saveSVD(stringUID, svdState, changes, signature, callback){
         let dirPath = path + "/" + stringUID + "/";
         fs.mkdir(dirPath, function(){
             fs.writeFile(dirPath+ "/state", JSON.stringify(svdState), function(){
-                fs.appendFile(path + "/" + stringUID +"/history", JSON.stringify(changes) + "\n", callback );
+                let auditEntry = {
+                    changes: changes,
+                    signature: signature
+                }
+                //make stringify as an audit single line removing all newlines
+                let auditLogLine = JSON.stringify(auditEntry).replace(/\n/g, " ");
+                fs.appendFile(path + "/" + stringUID +"/history", auditLogLine + "\n", callback );
             });
         });
     }

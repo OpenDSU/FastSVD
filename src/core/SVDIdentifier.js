@@ -8,6 +8,10 @@ function SVDIdentifier(svdUID){
         return svdUID;
     }
 
+    this.getStringId  = function(){
+        return svdUID;
+    }
+
     if(parsed[0] != "svd" && parsed.length != 3){
         throw new Error("Invalid SVD Unique identifier " + svdUID + " !!! Expected format: svd:<type>:<id>");
     }

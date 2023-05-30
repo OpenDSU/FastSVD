@@ -3,6 +3,7 @@ function SVDSession(svdFactory){
     let currentSVDs = {};
     let self = this;
 
+
     this.create = function(svdId, ...args){
         if(typeof svdId == 'string'){
             svdId = new SVDIdentifier(svdId);
@@ -12,7 +13,15 @@ function SVDSession(svdFactory){
         return svdInstance;
     }
 
+    this.now = function(){
+        return Date.now();
+    }
+
     this.lookup = function(svdId, callback){
+        if(typeof callback != 'function'){
+            throw new Error("Invalid callback function");
+        }
+
         setTimeout(function(){//force async behaviour
             if(typeof svdId == 'string'){
                 svdId = new SVDIdentifier(svdId);
@@ -23,6 +32,7 @@ function SVDSession(svdFactory){
                     if(err){
                         return callback(err);
                     }
+
                     currentSVDs[svdId.getUID()] = svdInstance;
                     callback(undefined, svdInstance);
                 });
@@ -100,12 +110,12 @@ function SVDSession(svdFactory){
         let counter = 0;
         for(let uid in auditLog){
             counter++
-            //console.debug("Committing: ", uid, " with ", auditLog[uid].length, " changes");
             self.lookup(uid, function(err, svdInstance){
                 diff.push({
                     uid: uid,
                     state: svdInstance.getState(),
-                    changes: auditLog[uid]
+                    changes: auditLog[uid],
+                    now:Date.now()
                 })
                 counter--;
                 if(counter == 0){
@@ -118,8 +128,24 @@ function SVDSession(svdFactory){
         }
     }
 
+    function updateVersion (svdInfo){
+        if(!svdInfo.state){
+            svdInfo.state = {__version: 0};
+        }
+
+        if(!svdInfo.state.__version){
+            svdInfo.state.__version = 0;
+        }
+        svdInfo.state.__version++;
+    }
+
     this.commitTransaction = function(callback){
         detectDiffsToBeSaved(function(diff){
+
+            diff.forEach( function(svdInfo){
+                updateVersion(svdInfo);
+            });
+            //console.debug("Committing: ", diff);
             svdFactory.store(diff, transactionHandler, callback);
             transactionHandler = undefined;
         });

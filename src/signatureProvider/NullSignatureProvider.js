@@ -1,7 +1,10 @@
 
 function NullSignatureProvider(){
-    this.sign = function (diff) {
-        return "NULL";
+    this.sign = function (blockNo, change) {
+        if(change == undefined) {
+            throw new Error("Invalid attempt to sign an undefined change");
+        }
+        return "<<NULLSIGNATURE>>";
     }
 }
 

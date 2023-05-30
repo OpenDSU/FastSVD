@@ -11,6 +11,13 @@ function SVDBase( svdIdentifier, state, description, session, callCtor){
         return svdIdentifier.getUID();
     }
 
+    this.getStringId = function(){
+        return svdIdentifier.getStringId();
+    }
+
+    this.getSession = function(){
+        return session;
+    }
     function generateReadOnlyFunction(f){
         return f.bind(self);
     }

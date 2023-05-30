@@ -16,6 +16,7 @@ let factory = new fastSVD.createFactory(persistence, signatureProvider);
 factory.registerType("test", {
         ctor: function(value){
                 this.value = value;
+                this.selfRef = 0;
         },
         read: function(){
                 return this.value;
@@ -23,6 +24,10 @@ factory.registerType("test", {
         actions: {
             changeValue: function(newValue){
                 this.value = newValue;
+                this.timeOfChange  = this.getSession().now();
+                 this.getSession().lookup(this.getUID(), function(err,  selfRefDummy){
+                    selfRefDummy.selfRef++;
+                });
             }
         }
 })

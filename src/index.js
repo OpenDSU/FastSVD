@@ -2,6 +2,8 @@ let SVDBase = require("./core/SVDBase.js");
 let FSStrategy = require("./persistenceStrategies/FSStrategy.js");
 let SVDFactory = require("./core/SVDFactory.js");
 let SVDSession = require("./core/SVDSession.js");
+let NullSignatureProvider = require("./signatureProvider/NullSignatureProvider.js");
+
 const constants = require("./moduleConstants.js");
 
 
@@ -18,6 +20,12 @@ module.exports = {
         {
             strategy = new FSStrategy(path);
         }
+
+        if(!signatureProvider)
+        {
+            signatureProvider = new NullSignatureProvider();
+        }
+        
         return new SVDFactory(strategy, signatureProvider);
     }
 

@@ -26,16 +26,17 @@ function SVDFactory(persistenceStrategy, signatureProvider){
         });
     }
 
-    this.store = function(diff, transactionHandler, callback){
-        diff.forEach(entry => {
-            entry.signature = signatureProvider.sign(entry);
+    this.store = function(changesForAllSVDS, transactionHandler, callback){
+        changesForAllSVDS.forEach(entry => {
+            entry.signature = signatureProvider.sign(entry.state.__version, entry.changes);
         })
-        //console.log("Storing diff: ", diff);
-        persistenceStrategy.storeAndUnlock(diff, transactionHandler, callback);
+        //console.debug("Storing diff: ", changesForAllSVDS);
+        persistenceStrategy.storeAndUnlock(changesForAllSVDS, transactionHandler, callback);
     }
 
     this.create = function(svdId,  session, ...args){
-         return new SVDBase(svdId, args, typesRegistry[svdId.getTypeName()], session, true);
+         let instance = new SVDBase(svdId, args, typesRegistry[svdId.getTypeName()], session, true);
+         return instance;
     }
 }
 
