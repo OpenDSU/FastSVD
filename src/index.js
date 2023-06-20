@@ -22,7 +22,7 @@ module.exports = {
 
         if(!signatureProvider)
         {
-            signatureProvider = new NullSignatureProvider();
+            signatureProvider = NullSignatureProvider.create();
         }
         
         return new SVDFactory(strategy, signatureProvider);

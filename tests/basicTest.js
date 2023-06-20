@@ -17,6 +17,9 @@ factory.registerType("test", {
                 this.value = value;
                 this.selfRef = 0;
         },
+        _ctor: function(){
+
+        },
         read: function(){
                 return this.value;
         },

@@ -1,4 +1,5 @@
 const constants = require("../moduleConstants");
+const stateVariables = ["__timeOfLastChange", "__version"];
 /*
     Description is a JSON in format { [functionName:function1], actions : [action1, action2, ...] }
     The SVDBase instances will look like normal JS objects with methods from description and actions mixed together.
@@ -58,6 +59,9 @@ function SVDBase( svdIdentifier, state, description, session, callCtor){
             try{
                 session.audit(self, "ctor", ...state);
                 this.ctor(...state);
+                if(this._ctor){
+                    this._ctor();
+                }
             }catch (err){
                 let newError = new Error("Ctor initialisation for" + svdIdentifier.getTypeName() +" failed to run properly. See .previous for details");
                 newError.previous = err;
@@ -75,18 +79,21 @@ function SVDBase( svdIdentifier, state, description, session, callCtor){
                 this[key] = state[key];
             }
         }
+        if(this._ctor){
+            this._ctor();
+        }
     }
 
     this.getState = function(){
         let state = {};
         for(let key in self){
             if(typeof self[key] != 'function'){
+                if(key.charAt(0) != "_" || stateVariables.includes(key))
                 state[key] = self[key];
             }
         }
         return state;
     }
-
 }
 
 module.exports = SVDBase;
