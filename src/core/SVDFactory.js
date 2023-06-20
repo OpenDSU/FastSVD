@@ -22,7 +22,8 @@ function SVDFactory(persistenceStrategy, signatureProvider){
                 callback(err);
                 return;
             }
-            callback(undefined, new SVDBase(svdId, state, typesRegistry[svdId.getTypeName()], session, false));
+            const svdInstance = new SVDBase(svdId, state, typesRegistry[svdId.getTypeName()], session, false);
+            callback(undefined, svdInstance);
         });
     }
 

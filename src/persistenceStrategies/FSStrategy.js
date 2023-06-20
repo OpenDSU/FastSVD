@@ -51,6 +51,7 @@ function FSStrategy(path){
             }
         });
     }
+
     function saveSVD(stringUID, svdState, changes, signature, callback){
         let dirPath = path + "/" + stringUID + "/";
         fs.mkdir(dirPath, function(){
