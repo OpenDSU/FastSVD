@@ -16,13 +16,14 @@ function SVDFactory(persistenceStrategy, signatureProvider){
         typesRegistry[typeName] = description;
     }
 
-    this.restore = function(svdId, session, callback){
+    this.restore = function(svdId, transaction, callback){
         persistenceStrategy.loadState(svdId, function(err, state){
             if(err){
+                console.log("@@Error at loading state: " + err);
                 callback(err);
                 return;
             }
-            const svdInstance = new SVDBase(svdId, state, typesRegistry[svdId.getTypeName()], session, false);
+            const svdInstance = new SVDBase(svdId, state, typesRegistry[svdId.getTypeName()], transaction, false);
             callback(undefined, svdInstance);
         });
     }
@@ -35,8 +36,8 @@ function SVDFactory(persistenceStrategy, signatureProvider){
         persistenceStrategy.storeAndUnlock(changesForAllSVDS, transactionHandler, callback);
     }
 
-    this.create = function(svdId,  session, ...args){
-         return new SVDBase(svdId, args, typesRegistry[svdId.getTypeName()], session, true);
+    this.create = function(svdId,  transaction, ...args){
+         return new SVDBase(svdId, args, typesRegistry[svdId.getTypeName()], transaction, true);
     }
 }
 

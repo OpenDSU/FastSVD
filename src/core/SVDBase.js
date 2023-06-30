@@ -5,7 +5,7 @@ const stateVariables = ["__timeOfLastChange", "__version"];
     The SVDBase instances will look like normal JS objects with methods from description and actions mixed together.
  */
 
-function SVDBase( svdIdentifier, state, description, session, callCtor){
+function SVDBase( svdIdentifier, state, description, transaction, callCtor){
     let self = this;
 
     this.getUID = function(){
@@ -16,8 +16,8 @@ function SVDBase( svdIdentifier, state, description, session, callCtor){
         return svdIdentifier.getStringId();
     }
 
-    this.getSession = function(){
-        return session;
+    this.getTransaction = function(){
+        return transaction;
     }
     function generateReadOnlyFunction(f){
         return f.bind(self);
@@ -31,7 +31,7 @@ function SVDBase( svdIdentifier, state, description, session, callCtor){
         let boundFunc = f.bind(self);
         return function(...args){
             self.__timeOfLastChange = Date.now();
-            session.audit(self, fn, ...args);
+            transaction.audit(self, fn, ...args);
             return boundFunc(...args);
         }.bind(self)
     }
@@ -57,7 +57,7 @@ function SVDBase( svdIdentifier, state, description, session, callCtor){
     {
         if(this.ctor){
             try{
-                session.audit(self, "ctor", ...state);
+                transaction.audit(self, "ctor", ...state);
                 this.ctor(...state);
                 if(this._ctor){
                     this._ctor();

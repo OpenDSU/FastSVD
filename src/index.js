@@ -1,6 +1,6 @@
 let FSStrategy = require("./persistenceStrategies/FSStrategy.js");
 let SVDFactory = require("./core/SVDFactory.js");
-let SVDSession = require("./core/SVDSession.js");
+let SVDTransaction = require("./core/SVDSession.js");
 let NullSignatureProvider = require("./signatureProvider/NullSignatureProvider.js");
 
 const constants = require("./moduleConstants.js");
@@ -8,8 +8,8 @@ const constants = require("./moduleConstants.js");
 
 module.exports = {
     constants: constants,
-    createSession: function(svdFactory){
-        return new SVDSession(svdFactory);
+    createTransaction: function(svdFactory){
+        return new SVDTransaction(svdFactory);
     },
     createFSPersistence: function(path){
         return new FSStrategy(path);
