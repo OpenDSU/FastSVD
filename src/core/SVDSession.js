@@ -1,5 +1,5 @@
 let SVDIdentifier = require("./SVDIdentifier.js");
-function SVDSession(svdFactory){
+function SVDTransaction(svdFactory){
     let currentSVDs = {};
     let self = this;
 
@@ -67,24 +67,29 @@ function SVDSession(svdFactory){
         auditLog[uid].push(entry);
     }
 
-    let transactionHandler = undefined;
-    this.beginTransaction = function(lockList, callback){
-        if(transactionHandler != undefined){
+    this.transactionHandler = undefined;
+    this.begin = function(lockList, callback){
+        if(typeof lockList == "function"){
+            callback = lockList;
+            lockList = undefined;
+        }
+        console.log("@@Begin transaction");
+        if(this.transactionHandler != undefined){
             throw new Error("Transaction already in progress");
         }
         let crypto = require('crypto');
 
-        transactionHandler = crypto.randomBytes(32).toString('hex');
+        this.transactionHandler = crypto.randomBytes(32).toString('hex');
         if(!lockList || lockList.length == 0){
-            callback(undefined, transactionHandler);
+            callback(undefined, this);
         } else {
             let locksListClone = lockList.slice();
             function recursiveLock(){
                 if(locksListClone.length == 0){
-                    callback(undefined, transactionHandler);
+                    callback(undefined, this);
                 } else {
                     let uid = locksListClone.pop();
-                    svdFactory.lock(uid, transactionHandler, function(err, res) {
+                    svdFactory.lock(uid, this, function(err, res) {
                         if (err) {
                             self.abortTransaction();
                             callback(err);
@@ -96,9 +101,9 @@ function SVDSession(svdFactory){
         }
     }
 
-    this.abortTransaction = function(){
-        svdFactory.abortLocks(auditLog, transactionHandler);
-        transactionHandler = undefined;
+    this.abort = function(){
+        svdFactory.abortLocks(auditLog, this.transactionHandler);
+        this.transactionHandler = undefined;
     }
 
 
@@ -136,25 +141,25 @@ function SVDSession(svdFactory){
         svdInfo.state.__version++;
     }
 
-    this.commitTransaction = function(callback){
+    this.commit = function(callback){
         detectDiffsToBeSaved(function(diff){
 
             diff.forEach( function(svdInfo){
                 updateVersion(svdInfo);
             });
             //console.debug("Committing: ", diff);
-            svdFactory.store(diff, transactionHandler, callback);
-            transactionHandler = undefined;
+            svdFactory.store(diff, this.transactionHandler, callback);
+            this.transactionHandler = undefined;
         });
     }
 
     this.audit = function(svdInstance, fn, ...args){
-        if(!transactionHandler){
-            throw new Error("Modifiers must be called only during the transactions lifetimes");
+        if(!this.transactionHandler){
+            throw new Error(`Modifier ${fn} must be called only during the transactions lifetimes`);
         }
         //console.log("Audit: ", svdInstance.getUID(), fn, args);
         addAuditEntry(svdInstance.getUID(), svdInstance.__timeOfLastChange, fn, args);
     }
 }
 
-module.exports = SVDSession;
+module.exports = SVDTransaction;

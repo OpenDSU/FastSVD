@@ -43,12 +43,13 @@ function FSStrategy(path){
             if(err){
                 return callback(err);
             }
+            let obj;
             try{
-                let obj = JSON.parse(res);
-                callback(undefined, obj);
+                obj = JSON.parse(res);
             }catch(err){
                 callback(err);
             }
+            callback(undefined, obj);
         });
     }
 
