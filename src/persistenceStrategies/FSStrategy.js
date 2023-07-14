@@ -1,5 +1,8 @@
-function FSStrategy(path) {
+function FSStrategy(rootPath) {
     let fs = require('fs');
+    let path = require('path');
+    let crypto = require('opendsu').loadApi('crypto');
+
     let lockedSVds = {};
 
     this.lock = function (uid, transactionHandler) {
@@ -39,7 +42,9 @@ function FSStrategy(path) {
 
     this.loadState = function (uid, callback) {
         let stringUID = uid.getUID();
-        fs.readFile(path + "/" + stringUID + "/state", 'utf8', function (err, res) {
+        const base58UID = crypto.encodeBase58(stringUID)
+        
+        fs.readFile(path.join(rootPath, base58UID, "state"), 'utf8', function (err, res) {
             if (err) {
                 return callback(err);
             }
@@ -54,23 +59,24 @@ function FSStrategy(path) {
     }
 
     function saveSVD(stringUID, svdState, changes, signature, callback) {
-        let dirPath = path + "/" + stringUID + "/";
+        const base58UID = crypto.encodeBase58(stringUID)
+        let dirPath = path.join(rootPath, base58UID);
         fs.mkdir(dirPath, function () {
-            fs.writeFile(dirPath + "/state", JSON.stringify(svdState), function () {
+            fs.writeFile(path.join(dirPath, "state"), JSON.stringify(svdState), function () {
                 let auditEntry = {
                     changes: changes,
                     signature: signature
                 }
                 //make stringify as an audit single line removing all newlines
                 let auditLogLine = JSON.stringify(auditEntry).replace(/\n/g, " ");
-                fs.appendFile(path + "/" + stringUID + "/history", auditLogLine + "\n", callback);
+                fs.appendFile(path.join(rootPath, base58UID, "history"), auditLogLine + "\n", callback);
             });
         });
     }
 
     function checkPathExistence() {
-        if (!fs.existsSync(path)) {
-            fs.mkdirSync(path);
+        if (!fs.existsSync(rootPath)) {
+            fs.mkdirSync(rootPath);
         }
     }
     checkPathExistence();
