@@ -5,20 +5,20 @@ const FSStrategy = require("../persistenceStrategies/FSStrategy");
 const SVDBase = require("./SVDBase");
 
 
-function SVDFactory(persistenceStrategy, signatureProvider){
+function SVDFactory(persistenceStrategy, signatureProvider) {
     let typesRegistry = {};
 
-    if(!persistenceStrategy){
+    if (!persistenceStrategy) {
         persistenceStrategy = new FSStrategy("./svds");
     }
 
-    this.registerType  = function(typeName, description){
+    this.registerType = function (typeName, description) {
         typesRegistry[typeName] = description;
     }
 
-    this.restore = function(svdId, transaction, callback){
-        persistenceStrategy.loadState(svdId, function(err, state){
-            if(err){
+    this.restore = function (svdId, transaction, callback) {
+        persistenceStrategy.loadState(svdId, function (err, state) {
+            if (err) {
                 console.log("@@Error at loading state: " + err);
                 callback(err);
                 return;
@@ -28,7 +28,7 @@ function SVDFactory(persistenceStrategy, signatureProvider){
         });
     }
 
-    this.store = function(changesForAllSVDS, transactionHandler, callback){
+    this.store = function (changesForAllSVDS, transactionHandler, callback) {
         changesForAllSVDS.forEach(entry => {
             entry.signature = signatureProvider.sign(entry.state.__version, entry.changes);
         })
@@ -36,8 +36,8 @@ function SVDFactory(persistenceStrategy, signatureProvider){
         persistenceStrategy.storeAndUnlock(changesForAllSVDS, transactionHandler, callback);
     }
 
-    this.create = function(svdId,  transaction, ...args){
-         return new SVDBase(svdId, args, typesRegistry[svdId.getTypeName()], transaction, true);
+    this.create = function (svdId, transaction, ...args) {
+        return new SVDBase(svdId, args, typesRegistry[svdId.getTypeName()], transaction, true);
     }
 }
 

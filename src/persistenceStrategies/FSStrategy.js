@@ -43,7 +43,7 @@ function FSStrategy(rootPath) {
     this.loadState = function (uid, callback) {
         let stringUID = uid.getUID();
         const base58UID = crypto.encodeBase58(stringUID)
-        
+
         fs.readFile(path.join(rootPath, base58UID, "state"), 'utf8', function (err, res) {
             if (err) {
                 return callback(err);
@@ -79,6 +79,7 @@ function FSStrategy(rootPath) {
             fs.mkdirSync(rootPath);
         }
     }
+
     checkPathExistence();
 }
 

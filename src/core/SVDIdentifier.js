@@ -1,27 +1,27 @@
-function SVDIdentifier(svdUID){
-    if(typeof svdUID != "string"){
+function SVDIdentifier(svdUID) {
+    if (typeof svdUID != "string") {
         svdUID = svdUID.getUID();
     }
     let parsed = svdUID.split(":");
 
-    this.getUID = function(){
+    this.getUID = function () {
         return svdUID;
     }
 
-    this.getStringId  = function(){
+    this.getStringId = function () {
         return svdUID;
     }
 
-    if(parsed[0] != "svd" && parsed.length != 3){
+    if (parsed[0] != "svd" && parsed.length != 3) {
         throw new Error("Invalid SVD Unique identifier " + svdUID + " !!! Expected format: svd:<type>:<id>");
     }
 
-    this.getTypeName = function(){
+    this.getTypeName = function () {
         return parsed[1];
     }
 
     /* Type Unique ID */
-    this.getId = function(){
+    this.getId = function () {
         return parsed[2];
     }
 }
