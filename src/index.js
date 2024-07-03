@@ -1,7 +1,7 @@
 let FSStrategy = require("./persistenceStrategies/FSStrategy.js");
 let SVDFactory = require("./core/SVDFactory.js");
 let SVDTransaction = require("./core/SVDSession.js");
-let NullSignatureProvider = require("./signatureProvider/NullSignatureProvider.js");
+let DefaultSignatureProvider = require("./signatureProvider/DefaultSignatureProvider.js");
 
 const constants = require("./moduleConstants.js");
 
@@ -16,11 +16,11 @@ module.exports = {
     },
     createFactory: function (strategy, signatureProvider) {
         if (!strategy) {
-            strategy = new FSStrategy(path);
+            throw new Error("No strategy provided");
         }
 
         if (!signatureProvider) {
-            signatureProvider = NullSignatureProvider.create();
+            signatureProvider = DefaultSignatureProvider.create();
         }
 
         return new SVDFactory(strategy, signatureProvider);
