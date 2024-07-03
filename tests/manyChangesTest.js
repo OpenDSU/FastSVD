@@ -1,3 +1,4 @@
+require("../../../builds/output/testsRuntime");
 let fastSVD = require("../src/index.js")
 let fs = require("fs");
 let assert = require("assert");
