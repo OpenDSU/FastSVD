@@ -1,3 +1,4 @@
 module.exports = {
-    "ACTIONS": "actions"
+    "ACTIONS": "actions",
+    "SECURITY": "security"
 }

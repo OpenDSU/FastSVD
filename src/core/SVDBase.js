@@ -29,6 +29,10 @@ function SVDBase(svdIdentifier, state, description, transaction, callCtor) {
         return self.__timeOfLastChange;
     }
 
+    this.verifySignature = function (signature, methodName, ...args) {
+        return true;
+    }
+
     function generateModifier(fn, f) {
         let boundFunc = f.bind(self);
         return function (...args) {
@@ -46,13 +50,21 @@ function SVDBase(svdIdentifier, state, description, transaction, callCtor) {
 
     let actions = description[constants.ACTIONS];
     if (actions == undefined) {
-        throw new Error("No actions defined for destiption of SVD  " + svdIdentifier.getType() + "  !!! actions:{} is mandatory");
+        throw new Error("No actions defined for description of SVD  " + svdIdentifier.getType() + "  !!! actions:{} is mandatory");
     }
     for (let fn in actions) {
         if (this[fn] != undefined) {
             throw new Error("Function name collision in action: " + fn);
         }
         this[fn] = generateModifier(fn, actions[fn])
+    }
+
+    this.callAction = async (signature, actionName, ...args) => {
+        if (this.verifySignature(signature, actionName, ...args)) {
+            return await this[actionName](...args);
+        }
+
+        throw new Error("Signature verification failed");
     }
 
     if (callCtor) {
@@ -95,6 +107,6 @@ function SVDBase(svdIdentifier, state, description, transaction, callCtor) {
         }
         return state;
     }
-}
+};
 
 module.exports = SVDBase;

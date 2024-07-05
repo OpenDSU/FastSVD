@@ -5,7 +5,7 @@ function SVDTransaction(svdFactory) {
     let self = this;
 
 
-    this.create = function (svdId, ...args) {
+    this.create = (svdId, ...args) => {
         if (typeof svdId == 'string') {
             svdId = new SVDIdentifier(svdId);
         }
@@ -14,18 +14,18 @@ function SVDTransaction(svdFactory) {
         return svdInstance;
     }
 
-    this.lookup = function (svdId, callback) {
+    this.lookup = (svdId, callback) => {
         if (typeof callback != 'function') {
             throw new Error("Invalid callback function");
         }
 
-        setTimeout(function () {//force async behaviour
+        setTimeout(() => {//force async behaviour
             if (typeof svdId == 'string') {
                 svdId = new SVDIdentifier(svdId);
             }
             let svdInstance = currentSVDs[svdId.getUID()];
             if (!svdInstance) {
-                svdFactory.restore(svdId, self, function (err, svdInstance) {
+                svdFactory.restore(svdId, self, (err, svdInstance) => {
                     if (err) {
                         return callback(err);
                     }
@@ -39,7 +39,7 @@ function SVDTransaction(svdFactory) {
         }, 0);
     }
 
-    this.lookupAsync = async function (svdId) {
+    this.lookupAsync = async (svdId) => {
         //make callback in promise
         return new Promise((resolve, reject) => {
             self.lookup(svdId, (err, res) => {
@@ -70,7 +70,7 @@ function SVDTransaction(svdFactory) {
     }
 
     this.transactionHandler = undefined;
-    this.begin = function (lockList, callback) {
+    this.begin = (lockList, callback) => {
         if (typeof lockList == "function") {
             callback = lockList;
             lockList = undefined;
@@ -87,12 +87,12 @@ function SVDTransaction(svdFactory) {
         } else {
             let locksListClone = lockList.slice();
 
-            function recursiveLock() {
+            const recursiveLock = () => {
                 if (locksListClone.length == 0) {
                     callback(undefined, this);
                 } else {
                     let uid = locksListClone.pop();
-                    svdFactory.lock(uid, this, function (err, res) {
+                    svdFactory.lock(uid, this, (err, res) => {
                         if (err) {
                             self.abortTransaction();
                             callback(err);
@@ -104,7 +104,7 @@ function SVDTransaction(svdFactory) {
         }
     }
 
-    this.abort = function () {
+    this.abort = () => {
         svdFactory.abortLocks(auditLog, this.transactionHandler);
         this.transactionHandler = undefined;
     }
@@ -115,7 +115,7 @@ function SVDTransaction(svdFactory) {
         let counter = 0;
         for (let uid in auditLog) {
             counter++
-            self.lookup(uid, function (err, svdInstance) {
+            self.lookup(uid, (err, svdInstance) => {
                 diff.push({
                     uid: uid,
                     state: svdInstance.getState(),
@@ -144,10 +144,9 @@ function SVDTransaction(svdFactory) {
         svdInfo.state.__version++;
     }
 
-    this.commit = function (callback) {
-        detectDiffsToBeSaved(function (diff) {
-
-            diff.forEach(function (svdInfo) {
+    this.commit = (callback) => {
+        detectDiffsToBeSaved((diff) => {
+            diff.forEach((svdInfo) => {
                 updateVersion(svdInfo);
             });
             //console.debug("Committing: ", diff);
@@ -156,7 +155,7 @@ function SVDTransaction(svdFactory) {
         });
     }
 
-    this.audit = function (svdInstance, fn, ...args) {
+    this.audit = (svdInstance, fn, ...args) => {
         if (!this.transactionHandler) {
             throw new Error(`Modifier ${fn} must be called only during the transactions lifetimes`);
         }
