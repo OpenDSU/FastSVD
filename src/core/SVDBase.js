@@ -29,8 +29,15 @@ function SVDBase(svdIdentifier, state, description, transaction, callCtor) {
         return self.__timeOfLastChange;
     }
 
-    this.verifySignature = function (signature, methodName, ...args) {
-        return true;
+    this.verifySignature = async (signature, methodName, ...args) => {
+        const did = args.pop();
+        let dataToSign = "";
+        for (let i = 0; i < args.length; i++) {
+            dataToSign += args[i];
+        }
+
+        const didDocument = await $$.promisify(did.resolveDID)(did);
+        return await $$.promisify(didDocument.verify)(dataToSign, signature);
     }
 
     function generateModifier(fn, f) {
@@ -60,7 +67,8 @@ function SVDBase(svdIdentifier, state, description, transaction, callCtor) {
     }
 
     this.callAction = async (signature, actionName, ...args) => {
-        if (this.verifySignature(signature, actionName, ...args)) {
+        const signatureIsValid = await this.verifySignature(signature, actionName, ...args);
+        if (signatureIsValid) {
             return await this[actionName](...args);
         }
 
