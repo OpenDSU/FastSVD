@@ -15,6 +15,6 @@ function DefaultSignatureProvider(privateKey) {
     }
 }
 
-module.exports.create = function () {
-    return new DefaultSignatureProvider();
+module.exports.create = function (privateKey) {
+    return new DefaultSignatureProvider(privateKey);
 }

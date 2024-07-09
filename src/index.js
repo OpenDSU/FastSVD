@@ -14,17 +14,18 @@ module.exports = {
     createFSPersistence: function (path) {
         return new FSStrategy(path);
     },
+    createSignatureProvider: function (privateKey) {
+        return DefaultSignatureProvider.create(privateKey);
+    },
     createFactory: function (strategy, signatureProvider) {
         if (!strategy) {
             throw new Error("No strategy provided");
         }
 
         if (!signatureProvider) {
-            signatureProvider = DefaultSignatureProvider.create();
+            throw new Error("No signature provider provided");
         }
 
         return new SVDFactory(strategy, signatureProvider);
     }
-
-
 }
