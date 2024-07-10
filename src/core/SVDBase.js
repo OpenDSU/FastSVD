@@ -30,13 +30,15 @@ function SVDBase(svdIdentifier, state, description, transaction, callCtor) {
     }
 
     this.verifySignature = async (signature, methodName, ...args) => {
+        const openDSU = require("opendsu");
+        const w3cDID = openDSU.loadAPI("w3cdid");
         const did = args.pop();
         let dataToSign = "";
         for (let i = 0; i < args.length; i++) {
             dataToSign += args[i];
         }
-
-        const didDocument = await $$.promisify(did.resolveDID)(did);
+        dataToSign = `${this.currentNumberOfTransactions}${dataToSign}`;
+        const didDocument = await $$.promisify(w3cDID.resolveDID)(did);
         return await $$.promisify(didDocument.verify)(dataToSign, signature);
     }
 
@@ -69,6 +71,7 @@ function SVDBase(svdIdentifier, state, description, transaction, callCtor) {
     this.callAction = async (signature, actionName, ...args) => {
         const signatureIsValid = await this.verifySignature(signature, actionName, ...args);
         if (signatureIsValid) {
+            this.currentNumberOfTransactions++;
             return await this[actionName](...args);
         }
 
