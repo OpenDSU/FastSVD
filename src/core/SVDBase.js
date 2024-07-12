@@ -29,15 +29,14 @@ function SVDBase(svdIdentifier, state, description, transaction, callCtor) {
         return self.__timeOfLastChange;
     }
 
-    this.verifySignature = async (signature, methodName, ...args) => {
+    this.verifySignature = async (did, signature, methodName, ...args) => {
         const openDSU = require("opendsu");
         const w3cDID = openDSU.loadAPI("w3cdid");
-        const did = args.pop();
         let dataToSign = "";
         for (let i = 0; i < args.length; i++) {
             dataToSign += args[i];
         }
-        dataToSign = `${this.currentNumberOfTransactions}${dataToSign}`;
+        dataToSign = `${this.getCurrentNumberOfTransactions(did)}${dataToSign}`;
         const didDocument = await $$.promisify(w3cDID.resolveDID)(did);
         return await $$.promisify(didDocument.verify)(dataToSign, signature);
     }
@@ -68,10 +67,17 @@ function SVDBase(svdIdentifier, state, description, transaction, callCtor) {
         this[fn] = generateModifier(fn, actions[fn])
     }
 
-    this.callAction = async (signature, actionName, ...args) => {
-        const signatureIsValid = await this.verifySignature(signature, actionName, ...args);
+    this.acceptTransaction = (did) => {
+        if(typeof this.currentNumberOfTransactions[did] === "undefined"){
+            this.currentNumberOfTransactions[did] = 0;
+        }
+        this.currentNumberOfTransactions[did]++;
+    }
+
+    this.callAction = async (did, signature, actionName, ...args) => {
+        const signatureIsValid = await this.verifySignature(did, signature, actionName, ...args);
         if (signatureIsValid) {
-            this.currentNumberOfTransactions++;
+            this.acceptTransaction(did);
             return await this[actionName](...args);
         }
 
